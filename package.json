@@ -1,0 +1,19 @@
+{
+  "name": "automation-testing-assessment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SauceDemo UI automation with Playwright and ReqRes API tests with a Postman collection",
+  "scripts": {
+    "test:ui": "playwright test",
+    "test:q1": "playwright test tests/q1-locked-out.spec.js",
+    "test:q2": "playwright test tests/q2-standard-user.spec.js",
+    "test:q3": "playwright test tests/q3-performance-glitch.spec.js",
+    "report:ui": "playwright show-report",
+    "test:api": "newman run postman/reqres-automation.collection.json -e postman/reqres-environment.template.json --reporters cli,htmlextra --reporter-htmlextra-export reports/api-report.html"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "newman": "^6.2.1",
+    "newman-reporter-htmlextra": "^1.23.1"
+  }
+}

@@ -1,0 +1,347 @@
+{
+  "info": {
+    "_postman_id": "c7a6e29e-1a6c-4b4a-b5b0-0b9c8d7e6f51",
+    "name": "Automation Testing Assessment - ReqRes API",
+    "description": "API assessment starter collection. Set apiKey in the environment before running. The collection uses classic ReqRes /api endpoints from the assignment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Q3 - Login and capture authToken",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "login"
+          ]
+        },
+        "description": "Uses the standard ReqRes demo login credentials.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"eve.holt@reqres.in\",\n  \"password\": \"cityslicka\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Login status is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test(\"Response contains auth token\", function () {",
+              "  pm.expect(body).to.have.property(\"token\");",
+              "  pm.expect(body.token).to.be.a(\"string\").and.not.empty;",
+              "});",
+              "pm.collectionVariables.set(\"authToken\", body.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Q4 - GET user by userId and verify name/email",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "2"
+          ]
+        },
+        "description": "ReqRes user id 2 is Janet Weaver."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"GET user status is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test(\"User name matches expected value\", function () {",
+              "  pm.expect(body.data.first_name).to.eql(\"Janet\");",
+              "  pm.expect(body.data.last_name).to.eql(\"Weaver\");",
+              "});",
+              "pm.test(\"User email matches expected value\", function () {",
+              "  pm.expect(body.data.email).to.eql(\"janet.weaver@reqres.in\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Q5 - PUT updated profile and verify updatedAt",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "2"
+          ]
+        },
+        "description": "ReqRes simulates profile updates and returns updatedAt.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Humayra QA\",\n  \"job\": \"Automation Tester\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"PUT status is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test(\"Updated profile fields match\", function () {",
+              "  pm.expect(body.name).to.eql(\"Humayra QA\");",
+              "  pm.expect(body.job).to.eql(\"Automation Tester\");",
+              "});",
+              "pm.test(\"updatedAt timestamp exists and is valid\", function () {",
+              "  pm.expect(body).to.have.property(\"updatedAt\");",
+              "  pm.expect(Number.isNaN(Date.parse(body.updatedAt))).to.eql(false);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Q6 - PATCH one field and verify only that field changed",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/2",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "2"
+          ]
+        },
+        "description": "Checks the response includes the patched job and timestamp, without the unchanged name field.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"job\": \"Senior QA Tester\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"PATCH status is 200\", function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test(\"Only the requested profile field is returned as updated (plus timestamp)\", function () {",
+              "  pm.expect(body.job).to.eql(\"Senior QA Tester\");",
+              "  pm.expect(body).to.have.property(\"updatedAt\");",
+              "  pm.expect(body).not.to.have.property(\"name\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Q8 - Bad login request returns 4xx",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "login"
+          ]
+        },
+        "description": "Intentionally omits password to trigger a client error.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"peter@klaven\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Bad login request returns a 4xx status\", function () {",
+              "  pm.expect(pm.response.code).to.be.within(400, 499);",
+              "});",
+              "pm.test(\"Bad login response contains an error\", function () {",
+              "  const body = pm.response.json();",
+              "  pm.expect(body).to.have.property(\"error\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Q8 - Unknown user returns 4xx",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "x-api-key",
+            "value": "{{apiKey}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/99999",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "users",
+            "99999"
+          ]
+        },
+        "description": "Requests a user ID that does not exist."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Unknown user returns a 4xx status\", function () {",
+              "  pm.expect(pm.response.code).to.be.within(400, 499);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "2",
+      "type": "string"
+    }
+  ]
+}
